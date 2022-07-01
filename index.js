@@ -20,6 +20,7 @@ async function run() {
     try{
         await client.connect();
         const taskCollection = client.db("end-game").collection("task");
+        const completeCollection = client.db("end-game").collection("complete");
 
         app.post('/task', async(req,res) => {
             const task = req.body;
@@ -27,9 +28,29 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/task', async(req,res) => {
+        app.get('/task/:date', async(req,res) => {
+            const date = req.params.date;
+            const filter = {date: date};
+            const result = await taskCollection.findOne(filter);
+            res.send(result);
+        })
+
+        app.put('/completeTask', async(req,res) => {
             const filter = {};
-            const result = await taskCollection.findOne(filter)
+            const complete = req.body.change;
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                  complete: complete
+                },
+            };
+            const result = await completeCollection.updateOne(filter,updateDoc,options);
+            res.send(result)
+        })
+
+        app.get('/completeTask', async(req,res) => {
+            const filter = {};
+            const result = await completeCollection.findOne(filter);
             res.send(result);
         })
     }
