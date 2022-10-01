@@ -21,6 +21,7 @@ async function run() {
         await client.connect();
         const taskCollection = client.db("end-game").collection("task");
         const completeCollection = client.db("end-game").collection("complete");
+        const scheduleCollection = client.db("end-game").collection("schedule");
 
         app.post('/task', async(req,res) => {
             const task = req.body;
@@ -51,6 +52,16 @@ async function run() {
         app.get('/completeTask', async(req,res) => {
             const filter = {};
             const result = await completeCollection.findOne(filter);
+            res.send(result);
+        })
+
+        app.post('/addSchedule', async(req,res) => {
+            const card = req.body;
+            const result = await scheduleCollection.insertOne(card);
+            res.send(result);
+        })
+        app.get('/schedule', async(req,res) => {
+            const result = await scheduleCollection.find({}).toArray();
             res.send(result);
         })
     }
